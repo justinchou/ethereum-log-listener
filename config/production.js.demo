@@ -1,0 +1,24 @@
+module.exports = {
+  env: 'development',
+  eth: {
+    contracts: 'development',
+    provider: 'https://rinkeby.infura.io/xxxx',
+    options: null,
+    trustBlocks: 7,
+  },
+
+  dataCenter: 'http://datacenter.wumingxiaozu.com/',
+
+  ops: {
+    apikey: 'SGi.xxxx',
+    emails: ['justin@wumingxiaozu.com'],
+    from: 'support@wumingxiaozu.com',
+  },
+
+  watchdog: {
+    mongoose: 'mongodb://127.0.0.1:27017/development',
+  },
+
+  unit: 1e18,
+};
+
