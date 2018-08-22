@@ -97,6 +97,6 @@ function mockBlock(num) {
   };
 }
 
-module.exports = mockBlock;
+module.exports = {mockBlock};
 
 

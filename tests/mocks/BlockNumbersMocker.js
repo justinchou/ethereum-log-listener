@@ -22,5 +22,5 @@ function mockFindBlockNumbers() {
   const blocks = dbBlocks.length > CHECK_BLOCKS ? dbBlocks.slice(dbBlocks.length - CHECK_BLOCKS) : dbBlocks;
   return blocks;
 }
-module.exports = mockFindBlockNumbers;
+module.exports = {mockFindBlockNumbers};
 

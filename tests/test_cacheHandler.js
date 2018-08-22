@@ -14,13 +14,18 @@ Logger.configure(logConfig);
 const logger       = Logger.getLogger();
 
 const connectionHandler = new ConnectionHandler({mongoose: mongooseConf, redis: redisConf}).init();
-const {redis, Block, LogItem, TxHash} = connectionHandler;
-const cacheHandler = new CacheHandler(redis, Block, LogItem, TxHash).init();
+const {redis, Block, LogItem, TxHash, Contract} = connectionHandler;
+const cacheHandler = new CacheHandler(redis, Block, LogItem, TxHash, Contract).init();
 
-const {mockFindBlockNumbers, mockBlock, mockTxInfo} = require('./mocks/index');
+const {BlockNumbersMocker, BlockMocker, TxInfoMocker, LogItemMocker, ContractMocker} = require('./mocks/index');
+
+setTimeout(() => {
+  connectionHandler.redis.quit();
+  connectionHandler.mongodb.close();
+}, 3e3);
 
 function findMissionNumber() {
-  const blocks = mockFindBlockNumbers();
+  const blocks = BlockNumbersMocker.mockFindBlockNumbers();
   console.log("Mock Blocks [ %s ]", blocks.length);
 
   let maxBlockNumber = blocks[0].blockNumber;
@@ -43,7 +48,7 @@ function findMissionNumber() {
 
 
 async function rwBlock() {
-  const block = mockBlock();
+  const block = BlockMocker.mockBlock();
 
   let savedBlock = await cacheHandler.writeBlock(block.blockNumber, block.blockInfo);
     logger.debug("Save Block [ %j ]", savedBlock);
@@ -68,7 +73,7 @@ async function rwBlock() {
 
 
 async function rwTxHash() {
-  const txInfo = mockTxInfo();
+  const txInfo = TxInfoMocker.mockTxInfo();
 
   let savedTxRecord = await cacheHandler.writeTxRecord(txInfo);
     logger.debug('Save TxHash [ %j ]', savedTxRecord);
@@ -88,4 +93,47 @@ async function rwTxHash() {
 // rwTxHash();
 
 
+async function rwLogItems() {
+  const logItem = LogItemMocker.mockLogItem();
+
+  const {blockNumber, contractName, logsInfo, origin} = logItem;
+  let savedLogItem = await cacheHandler.writeLogs(blockNumber, contractName, logsInfo, origin);
+    logger.debug('Save LogItem [ %j ]', savedLogItem);
+
+  try {
+    let updated = await cacheHandler.writeLogs(blockNumber+1, contractName, logsInfo, origin);
+    logger.info('Update LogItem #%s => #%s [ %s ]', blockNumber, blockNumber+1, updated);
+  } catch (err) {
+    logger.error('Error: %s', err.message);
+  }
+
+  let writtenLogItemOld = await cacheHandler.readLogs(logItem.blockNumber);
+    logger.debug('Written LogItem Old [ %j ]', writtenLogItemOld);
+  let writtenLogItemNew = await cacheHandler.readLogs(logItem.blockNumber + 1);
+    logger.debug('Written LogItem New [ %j ]', writtenLogItemNew);
+}
+// rwLogItems();
+
+async function rwContract() {
+  const address = ContractMocker.mockContractAddress();
+
+  let savedContract = await cacheHandler.writeContractAddress(address, 'origin');
+    logger.debug('Save Contract [ %j ]', savedContract);
+
+  try {
+    await cacheHandler.writeContractAddress(address, 'origin');
+  } catch (err) {
+    logger.error('Error: %s', err.message);
+  }
+
+  let isValidAddress;
+  isValidAddress = await cacheHandler.isValidAddress(address);
+    logger.debug('Address [ %s ] Should Valid [ %s ]', address, isValidAddress);
+
+  const inValidAddress = ContractMocker.mockContractAddress();
+  isValidAddress = await cacheHandler.isValidAddress(inValidAddress);
+    logger.debug('Address [ %s ] Should InValid [ %s ]', inValidAddress, isValidAddress);
+
+}
+// rwContract();
 

@@ -2,7 +2,7 @@ module.exports = {
   env: 'development',
   eth: {
     contracts: 'development',
-    provider: 'https://rinkeby.infura.io/xxxx',
+    provider: 'wss://rinkeby.infura.io/ws',
     options: null,
     trustBlocks: 7,
   },

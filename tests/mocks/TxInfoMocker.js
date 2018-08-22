@@ -60,6 +60,6 @@ function mockTxInfo() {
   }
 }
 
-module.exports = mockTxInfo;
+module.exports = {mockTxInfo};
 
 
