@@ -3,7 +3,7 @@ const BlockHandler = require("../lib/BlockHandler");
 
 const logger       = Logger.getLogger();
 
-const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("./mocks/ConnectionHandlerMocker").connectionHandler;
+const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/ConnectionHandlerMocker").connectionHandler;
 
 quit(30e3);
 

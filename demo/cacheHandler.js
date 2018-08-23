@@ -3,10 +3,10 @@ const CacheHandler = require("../lib/CacheHandler");
 
 const logger       = Logger.getLogger();
 
-const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("./mocks/ConnectionHandlerMocker").connectionHandler;
+const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/ConnectionHandlerMocker").connectionHandler;
 const cacheHandler = new CacheHandler(redis, Block, LogItem, TxHash, Contract).init();
 
-const {BlockNumbersMocker, BlockMocker, TxInfoMocker, LogItemMocker, ContractMocker} = require('./mocks/index');
+const {BlockNumbersMocker, BlockMocker, TxInfoMocker, LogItemMocker, ContractMocker} = require('../mocks/index');
 
 quit();
 
@@ -30,7 +30,7 @@ function findMissionNumber() {
 
   console.log("Exist Blocks [ %s ] Missing Blocks [ %s ] Total Blocks [ %s ]", blocks.length, missingBlockNumber.length, blocks.length + missingBlockNumber.length);
 }
-// findMissionNumber();
+findMissionNumber();
 
 
 async function rwBlock() {
@@ -55,7 +55,7 @@ async function rwBlock() {
   let currentBlock  = await cacheHandler.readCurrnetBlockNumber();
     logger.debug("Current Block [ %s ] Missing Blocks [ %s ]", currentBlock, missingBlocks.length);
 }
-// rwBlock();
+rwBlock();
 
 
 async function rwTxHash() {
@@ -76,7 +76,7 @@ async function rwTxHash() {
   let writtenTxRecord = await cacheHandler.readTxRecord(txInfo.txHash);
     logger.debug('Written TxHash [ %j ]', writtenTxRecord);
 }
-// rwTxHash();
+rwTxHash();
 
 
 async function rwLogItems() {
@@ -98,7 +98,7 @@ async function rwLogItems() {
   let writtenLogItemNew = await cacheHandler.readLogs(logItem.blockNumber + 1);
     logger.debug('Written LogItem New [ %j ]', writtenLogItemNew);
 }
-// rwLogItems();
+rwLogItems();
 
 async function rwContract() {
   const address = ContractMocker.mockContractAddress();
@@ -121,5 +121,5 @@ async function rwContract() {
     logger.debug('Address [ %s ] Should InValid [ %s ]', inValidAddress, isValidAddress);
 
 }
-// rwContract();
+rwContract();
 

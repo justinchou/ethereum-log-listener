@@ -1,6 +1,6 @@
 const Logger     = require('bearcatjs-logger');
 const logger     = Logger.getLogger();
-require('../../lib/Utils');
+require('../lib/Utils');
 
 const ADDRSTR = '1234567890abcdef';
 

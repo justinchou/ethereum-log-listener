@@ -1,6 +1,6 @@
 const Async        = require('async');
 const Logger       = require('bearcatjs-logger');
-const ConnectionHandler = require('../../lib/ConnectionHandler');
+const ConnectionHandler = require('../lib/ConnectionHandler');
 
 const web3Config   = {provider: 'wss://rinkeby.infura.io/ws', options: {}};
 const mongooseConf = "mongodb://127.0.0.1:27017/watch-dog";
