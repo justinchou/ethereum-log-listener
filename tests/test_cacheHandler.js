@@ -1,28 +1,14 @@
-const Async        = require('async');
 const Logger       = require('bearcatjs-logger');
-const ConnectionHandler = require('../lib/ConnectionHandler');
 const CacheHandler = require("../lib/CacheHandler");
-
-const mongooseConf = "mongodb://127.0.0.1:27017/watch-dog";
-const redisConf    = {host: '127.0.0.1', port: 6379};
-const logConfig    = {
-  appenders  : {"console": { "type"     : "console"}},
-  categories : {"default": { "appenders": ["console"], "level": "DEBUG" }}
-};
-Logger.configure(logConfig);
 
 const logger       = Logger.getLogger();
 
-const connectionHandler = new ConnectionHandler({mongoose: mongooseConf, redis: redisConf}).init();
-const {redis, Block, LogItem, TxHash, Contract} = connectionHandler;
+const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("./mocks/ConnectionHandlerMocker").connectionHandler;
 const cacheHandler = new CacheHandler(redis, Block, LogItem, TxHash, Contract).init();
 
 const {BlockNumbersMocker, BlockMocker, TxInfoMocker, LogItemMocker, ContractMocker} = require('./mocks/index');
 
-setTimeout(() => {
-  connectionHandler.redis.quit();
-  connectionHandler.mongodb.close();
-}, 3e3);
+quit();
 
 function findMissionNumber() {
   const blocks = BlockNumbersMocker.mockFindBlockNumbers();
