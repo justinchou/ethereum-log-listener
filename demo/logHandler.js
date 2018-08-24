@@ -20,9 +20,10 @@ blockHandler.on('blockNumber', (blockNumber) => {
 blockHandler.on('blockHeader', (blockNumber, blockHeader) => {
   logger.debug('Recv BlockHeader #%s [ %j ]', blockNumber, blockHeader);
 });
-blockHandler.on('blockInfo', (blockNumber, parsedBlock) => {
+blockHandler.on('blockInfo', async (blockNumber, parsedBlock) => {
   logger.debug('Recv BlockInfo #%s [ %j ]', blockNumber, parsedBlock);
-  logHandler.pullLogInfo(blockNumber);
+  let amount = await logHandler.pullLogInfo(blockNumber);
+  logger.info('Recv #%s Filtered Logs [ %s ]', blockNumber, amount);
 });
 
 logHandler.on('log', (blockNumber, contractName, parsedLog) => {
