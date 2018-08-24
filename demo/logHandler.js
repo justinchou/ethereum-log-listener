@@ -1,6 +1,5 @@
 const Path         = require("path");
 const Logger       = require('bearcatjs-logger');
-const CacheHandler = require("../lib/CacheHandler");
 const BlockHandler = require("../lib/BlockHandler");
 const LogHandler   = require("../lib/LogHandler");
 const Utils        = require("../lib/Utils");
@@ -8,12 +7,12 @@ const Utils        = require("../lib/Utils");
 const logger       = Logger.getLogger();
 
 const {contracts, address2name, topic2name, topic2event} = Utils.loadAllABIFromBuild(Path.join(__dirname, '../../sphinx-watch-dog/node_modules/sphinx-meta/bestspx/build/contracts'));
-const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/ConnectionHandlerMocker").connectionHandler;
-const cacheHandler = new CacheHandler(redis, Block, LogItem, TxHash, Contract).init();
-const blockHandler = new BlockHandler({}, web3).init();
-const logHandler = new LogHandler({}, web3, contracts, address2name, topic2name, topic2event).init();
 
-quit(30e3);
+const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/ConnectionHandlerMocker").connectionHandler;
+const blockHandler = new BlockHandler({}, web3);
+const logHandler = new LogHandler({}, web3, contracts, address2name, topic2name, topic2event); 
+
+quit(300e3);
 
 blockHandler.on('blockNumber', (blockNumber) => {
   logger.debug('Recv BlockNumber #%s', blockNumber);
@@ -33,22 +32,6 @@ logHandler.on('revert', (blockNumber, contractName, parsedLog) => {
   logger.debug('Revert Log #%s [ %s ] [ %j ]', blockNumber, contractName, parsedLog);
 });
 
-async function getMissingBlocks() {
-  const missingBlocks = await cacheHandler.readMissingBlocks();
-  const currentBlock  = await cacheHandler.readCurrnetBlockNumber();
-    logger.debug("Current Block [ %s ] Missing Blocks Amount [ %s ]", currentBlock, missingBlocks.length);
-  
-  for (let i = 0; i < missingBlocks.length; i++) {
-    const blockInfo = await blockHandler.getBlockInfo(missingBlocks[i]);
-    logger.debug('Get Back Missing Block #%s [ %j ]', missingBlocks[i], blockInfo);
-    await cacheHandler.writeBlock(blockInfo.number, blockInfo);
-  }
-}
-getMissingBlocks();
 
 // blockHandler.pullBlockNumber(true);
 blockHandler.subscribeBlock(true);
-
-process.on('uncaughtException', err => {
-  console.log(err);
-});
