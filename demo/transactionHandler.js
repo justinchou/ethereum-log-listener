@@ -4,10 +4,9 @@ const TransactionHandler = require("../lib/TransactionHandler");
 const logger       = Logger.getLogger();
 
 const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/ConnectionHandlerMocker").connectionHandler;
+const transactionHandler = new TransactionHandler({}, web3);
 
 quit(5e3);
-
-let transactionHandler = new TransactionHandler({}, web3);
 
 const validTxHash = '0x9d21f32a7e95639c19131c84c2b3992e2040fd256a70c94f007b63cfdcd83599';
 transactionHandler.getTxStatus(validTxHash)

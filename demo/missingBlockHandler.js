@@ -8,6 +8,8 @@ const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/
 const cacheHandler = new CacheHandler(redis, Block, LogItem, TxHash, Contract).init();
 const blockHandler = new BlockHandler({}, web3);
 
+quit(30e3);
+
 blockHandler.on('blockNumber', (blockNumber) => {
   logger.debug('Recv BlockNumber #%s', blockNumber);
 });
@@ -19,15 +21,13 @@ blockHandler.on('blockInfo', (blockNumber, parsedBlock) => {
   
 });
 
-quit(30e3);
-
 async function getMissingBlocks() {
-  let missingBlocks = await cacheHandler.readMissingBlocks();
-  let currentBlock  = await cacheHandler.readCurrnetBlockNumber();
+  const missingBlocks = await cacheHandler.readMissingBlocks();
+  const currentBlock  = await cacheHandler.readCurrnetBlockNumber();
     logger.debug("Current Block [ %s ] Missing Blocks Amount [ %s ]", currentBlock, missingBlocks.length);
   
   for (let i = 0; i < missingBlocks.length; i++) {
-    let blockInfo = await blockHandler.getBlockInfo(missingBlocks[i]);
+    const blockInfo = await blockHandler.getBlockInfo(missingBlocks[i]);
     logger.debug('Get Back Missing Block #%s [ %j ]', missingBlocks[i], blockInfo);
     await cacheHandler.writeBlock(blockInfo.number, blockInfo);
   }

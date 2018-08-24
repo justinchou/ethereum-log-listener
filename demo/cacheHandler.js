@@ -3,10 +3,9 @@ const CacheHandler = require("../lib/CacheHandler");
 
 const logger       = Logger.getLogger();
 
+const {BlockNumbersMocker, BlockMocker, TxInfoMocker, LogItemMocker, ContractMocker} = require('../mocks/index');
 const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/ConnectionHandlerMocker").connectionHandler;
 const cacheHandler = new CacheHandler(redis, Block, LogItem, TxHash, Contract).init();
-
-const {BlockNumbersMocker, BlockMocker, TxInfoMocker, LogItemMocker, ContractMocker} = require('../mocks/index');
 
 quit();
 
@@ -36,7 +35,7 @@ findMissionNumber();
 async function rwBlock() {
   const block = BlockMocker.mockBlock();
 
-  let savedBlock = await cacheHandler.writeBlock(block.blockNumber, block.blockInfo);
+  const savedBlock = await cacheHandler.writeBlock(block.blockNumber, block.blockInfo);
     logger.debug("Save Block [ %j ]", savedBlock);
 
   try {
@@ -45,14 +44,14 @@ async function rwBlock() {
     logger.error("Error: %s", err.message);
   };
 
-  let updatedBlock = await cacheHandler.updateBlockStatus(block.blockNumber, "finished");
+  const updatedBlock = await cacheHandler.updateBlockStatus(block.blockNumber, "finished");
     logger.debug("Updated Block [ %j ]", updatedBlock);
   
-  let writtenBlock = await cacheHandler.readBlock(block.blockNumber);
+  const writtenBlock = await cacheHandler.readBlock(block.blockNumber);
     logger.debug("Written Block [ %j ]", writtenBlock);
 
-  let missingBlocks = await cacheHandler.readMissingBlocks();
-  let currentBlock  = await cacheHandler.readCurrnetBlockNumber();
+  const missingBlocks = await cacheHandler.readMissingBlocks();
+  const currentBlock  = await cacheHandler.readCurrnetBlockNumber();
     logger.debug("Current Block [ %s ] Missing Blocks Amount [ %s ]", currentBlock, missingBlocks.length);
 }
 rwBlock();
@@ -61,7 +60,7 @@ rwBlock();
 async function rwTxHash() {
   const txInfo = TxInfoMocker.mockTxInfo();
 
-  let savedTxRecord = await cacheHandler.writeTxRecord(txInfo);
+  const savedTxRecord = await cacheHandler.writeTxRecord(txInfo);
     logger.debug('Save TxHash [ %j ]', savedTxRecord);
 
   try {
@@ -70,10 +69,10 @@ async function rwTxHash() {
     logger.error('Error: %s', err.message);
   };
 
-  let updatedTxRecord = await cacheHandler.updateTxRecordStatus(txInfo.txHash, 'finished');
+  const updatedTxRecord = await cacheHandler.updateTxRecordStatus(txInfo.txHash, 'finished');
     logger.debug('Update TxHash [ %j ]', updatedTxRecord);
 
-  let writtenTxRecord = await cacheHandler.readTxRecord(txInfo.txHash);
+  const writtenTxRecord = await cacheHandler.readTxRecord(txInfo.txHash);
     logger.debug('Written TxHash [ %j ]', writtenTxRecord);
 }
 rwTxHash();
@@ -83,19 +82,19 @@ async function rwLogItems() {
   const logItem = LogItemMocker.mockLogItem();
 
   const {blockNumber, contractName, logsInfo, origin} = logItem;
-  let savedLogItem = await cacheHandler.writeLogs(blockNumber, contractName, logsInfo, origin);
+  const savedLogItem = await cacheHandler.writeLogs(blockNumber, contractName, logsInfo, origin);
     logger.debug('Save LogItem [ %j ]', savedLogItem);
 
   try {
-    let updated = await cacheHandler.writeLogs(blockNumber+1, contractName, logsInfo, origin);
+    const updated = await cacheHandler.writeLogs(blockNumber+1, contractName, logsInfo, origin);
     logger.info('Update LogItem #%s => #%s [ %s ]', blockNumber, blockNumber+1, updated);
   } catch (err) {
     logger.error('Error: %s', err.message);
   }
 
-  let writtenLogItemOld = await cacheHandler.readLogs(logItem.blockNumber);
+  const writtenLogItemOld = await cacheHandler.readLogs(logItem.blockNumber);
     logger.debug('Written LogItem Old [ %j ]', writtenLogItemOld);
-  let writtenLogItemNew = await cacheHandler.readLogs(logItem.blockNumber + 1);
+  const writtenLogItemNew = await cacheHandler.readLogs(logItem.blockNumber + 1);
     logger.debug('Written LogItem New [ %j ]', writtenLogItemNew);
 }
 rwLogItems();
@@ -103,7 +102,7 @@ rwLogItems();
 async function rwContract() {
   const address = ContractMocker.mockContractAddress();
 
-  let savedContract = await cacheHandler.writeContractAddress(address, 'origin');
+  const savedContract = await cacheHandler.writeContractAddress(address, 'origin');
     logger.debug('Save Contract [ %j ]', savedContract);
 
   try {

@@ -4,10 +4,10 @@ const BlockHandler = require("../lib/BlockHandler");
 const logger       = Logger.getLogger();
 
 const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/ConnectionHandlerMocker").connectionHandler;
+const blockHandler = new BlockHandler({}, web3);
 
 quit(30e3);
 
-let blockHandler = new BlockHandler({}, web3);
 blockHandler.on('blockNumber', (blockNumber) => {
   logger.debug('Recv BlockNumber #%s', blockNumber);
 });
