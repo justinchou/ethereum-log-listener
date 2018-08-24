@@ -53,7 +53,7 @@ async function rwBlock() {
 
   let missingBlocks = await cacheHandler.readMissingBlocks();
   let currentBlock  = await cacheHandler.readCurrnetBlockNumber();
-    logger.debug("Current Block [ %s ] Missing Blocks [ %s ]", currentBlock, missingBlocks.length);
+    logger.debug("Current Block [ %s ] Missing Blocks Amount [ %s ]", currentBlock, missingBlocks.length);
 }
 rwBlock();
 
