@@ -7,13 +7,13 @@ const Utils        = require("../lib/Utils");
 
 const logger       = Logger.getLogger();
 
-const {contracts, address2name, topic2name, topic2event} = Utils.loadAllABIFromBuild(Path.join(__dirname, '../../sphinx-watch-dog/node_modules/sphinx-meta/bestspx/build/contracts'));
+const {contracts, topic2name, topic2event} = Utils.loadAllABIFromBuild(Path.join(__dirname, '../../sphinx-watch-dog/node_modules/sphinx-meta/bestspx/build/contracts'));
 const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/ConnectionHandlerMocker").connectionHandler;
 const cacheHandler = new CacheHandler(redis, Block, LogItem, TxHash, Contract).init();
 const blockHandler = new BlockHandler({}, web3).init();
-const logHandler = new LogHandler({}, web3, contracts, address2name, topic2name, topic2event).init();
+const logHandler = new LogHandler({}, web3, contracts, topic2name, topic2event).init();
 
-quit(30e3);
+// quit(30e3);
 
 blockHandler.on('blockNumber', (blockNumber) => {
   logger.debug('Recv BlockNumber #%s', blockNumber);
@@ -23,16 +23,20 @@ blockHandler.on('blockHeader', (blockNumber, blockHeader) => {
 });
 blockHandler.on('blockInfo', async (blockNumber, parsedBlock) => {
   logger.debug('Recv BlockInfo #%s [ %j ]', blockNumber, parsedBlock);
+
   let amount = await logHandler.pullLogInfo(blockNumber);
   logger.info('Recv #%s Filtered Logs [ %s ]', blockNumber, amount);
+
   parsedBlock.logAmount = amount;
+  await cacheHandler.writeBlock(blockNumber, parsedBlock);
 });
 
-logHandler.on('log', (blockNumber, contractName, parsedLog) => {
-  logger.debug('Recv Log #%s [ %s ] [ %j ]', blockNumber, contractName, parsedLog);
+logHandler.on('log', async (blockNumber, contractName, parsedLog, origin) => {
+  logger.debug('Recv Log #%s [ %s ] [ %j ] [ %j ]', blockNumber, contractName, parsedLog, origin);
+  await cacheHandler.writeLogs(blockNumber, contractName, parsedLog, origin)
 });
-logHandler.on('revert', (blockNumber, contractName, parsedLog) => {
-  logger.debug('Revert Log #%s [ %s ] [ %j ]', blockNumber, contractName, parsedLog);
+logHandler.on('revert', (blockNumber, contractName, parsedLog, origin) => {
+  logger.debug('Revert Log #%s [ %s ] [ %j ] [ %j ]', blockNumber, contractName, parsedLog, origin);
 });
 
 async function getMissingBlocks() {
@@ -51,6 +55,3 @@ getMissingBlocks();
 // blockHandler.pullBlockNumber(true);
 blockHandler.subscribeBlock(true);
 
-process.on('uncaughtException', err => {
-  console.log(err);
-});

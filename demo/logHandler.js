@@ -6,11 +6,11 @@ const Utils        = require("../lib/Utils");
 
 const logger       = Logger.getLogger();
 
-const {contracts, address2name, topic2name, topic2event} = Utils.loadAllABIFromBuild(Path.join(__dirname, '../../sphinx-watch-dog/node_modules/sphinx-meta/bestspx/build/contracts'));
+const {contracts, topic2name, topic2event} = Utils.loadAllABIFromBuild(Path.join(__dirname, '../../sphinx-watch-dog/node_modules/sphinx-meta/bestspx/build/contracts'));
 
 const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/ConnectionHandlerMocker").connectionHandler;
 const blockHandler = new BlockHandler({}, web3);
-const logHandler = new LogHandler({}, web3, contracts, address2name, topic2name, topic2event); 
+const logHandler = new LogHandler({}, web3, contracts, topic2name, topic2event); 
 
 quit(300e3);
 
@@ -27,11 +27,11 @@ blockHandler.on('blockInfo', async (blockNumber, parsedBlock) => {
   parsedBlock.logAmount = amount;
 });
 
-logHandler.on('log', (blockNumber, contractName, parsedLog) => {
-  logger.debug('Recv Log #%s [ %s ] [ %j ]', blockNumber, contractName, parsedLog);
+logHandler.on('log', (blockNumber, contractName, parsedLog, origin) => {
+  logger.debug('Recv Log #%s [ %s ] [ %j ] [ %j ]', blockNumber, contractName, parsedLog, origin);
 });
-logHandler.on('revert', (blockNumber, contractName, parsedLog) => {
-  logger.debug('Revert Log #%s [ %s ] [ %j ]', blockNumber, contractName, parsedLog);
+logHandler.on('revert', (blockNumber, contractName, parsedLog, origin) => {
+  logger.debug('Revert Log #%s [ %s ] [ %j ] [ %j ]', blockNumber, contractName, parsedLog, origin);
 });
 
 

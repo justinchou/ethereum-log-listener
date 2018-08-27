@@ -20,3 +20,5 @@ blockHandler.on('blockInfo', (blockNumber, parsedBlock) => {
 
 // blockHandler.pullBlockNumber(true);
 blockHandler.subscribeBlock(true);
+
+

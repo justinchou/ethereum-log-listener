@@ -7,7 +7,7 @@ const {BlockNumbersMocker, BlockMocker, TxInfoMocker, LogItemMocker, ContractMoc
 const {redis, web3, Block, LogItem, TxHash, Contract, quit} = require("../mocks/ConnectionHandlerMocker").connectionHandler;
 const cacheHandler = new CacheHandler(redis, Block, LogItem, TxHash, Contract).init();
 
-quit();
+quit(10e3);
 
 function findMissionNumber() {
   const blocks = BlockNumbersMocker.mockFindBlockNumbers();
@@ -29,7 +29,6 @@ function findMissionNumber() {
 
   console.log("Exist Blocks [ %s ] Missing Blocks [ %s ] Total Blocks [ %s ]", blocks.length, missingBlockNumber.length, blocks.length + missingBlockNumber.length);
 }
-findMissionNumber();
 
 
 async function rwBlock() {
@@ -50,11 +49,12 @@ async function rwBlock() {
   const writtenBlock = await cacheHandler.readBlock(block.blockNumber);
     logger.debug("Written Block [ %j ]", writtenBlock);
 
-  const missingBlocks = await cacheHandler.readMissingBlocks();
   const currentBlock  = await cacheHandler.readCurrnetBlockNumber();
+  const missingBlocks = await cacheHandler.readMissingBlocks();
     logger.debug("Current Block [ %s ] Missing Blocks Amount [ %s ]", currentBlock, missingBlocks.length);
+  const unfinishedBlock = await cacheHandler.readUnfinishedBlocks();
+    logger.debug("Current Block [ %s ] Unfinished Blocks Amount [ %s ]", currentBlock, unfinishedBlock.length);
 }
-rwBlock();
 
 
 async function rwTxHash() {
@@ -75,7 +75,6 @@ async function rwTxHash() {
   const writtenTxRecord = await cacheHandler.readTxRecord(txInfo.txHash);
     logger.debug('Written TxHash [ %j ]', writtenTxRecord);
 }
-rwTxHash();
 
 
 async function rwLogItems() {
@@ -97,7 +96,7 @@ async function rwLogItems() {
   const writtenLogItemNew = await cacheHandler.readLogs(logItem.blockNumber + 1);
     logger.debug('Written LogItem New [ %j ]', writtenLogItemNew);
 }
-rwLogItems();
+
 
 async function rwContract() {
   const address = ContractMocker.mockContractAddress();
@@ -120,5 +119,11 @@ async function rwContract() {
     logger.debug('Address [ %s ] Should InValid [ %s ]', inValidAddress, isValidAddress);
 
 }
-rwContract();
 
+
+
+// findMissionNumber();
+// rwBlock();
+// rwTxHash();
+// rwLogItems();
+// rwContract();
